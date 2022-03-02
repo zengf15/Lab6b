@@ -14,9 +14,11 @@ data(Whickham)
 
 A study conducted of Whickham, England recorded participants’ age,
 smoking status at baseline, and then 20 years later recorded their
-health outcome. - observational data - three variables: outcome (alive
-or dead), smoker (yes or no), age - smokers might die at a younger age
-than nonsmokers
+health outcome.
+
+We can see that the observational dataset has three variables: outcome
+(alive or dead), smoker (yes or no), age. We might expect to see that
+smokers die at a younger age than nonsmokers.
 
 ``` r
 head(Whickham)
@@ -121,14 +123,16 @@ Whickham %>%
 ![](lab-06b_files/figure-gfm/viz-1.png)<!-- -->
 
 We can see this pattern more clearly by filtering in people who are
-dead.
+dead. Most smokers died between the age of 45-64, whereas most
+nonsmokers died after 65. Besides, there are more smokers than
+nonsmokers who died between 18-44.
 
 ``` r
 Whickham %>%
   filter(outcome == "Dead") %>%
-  ggplot(aes(x = age_cat, fill = smoker)) +
+  ggplot(aes(y = smoker, fill = age_cat)) +
   geom_bar(position = "fill") +
-  labs(title = "Age of death of smokers vs. nonsmokers")
+  labs(title = "Age of death of smokers vs. nonsmokers", fill = "age groups")
 ```
 
 ![](lab-06b_files/figure-gfm/bar-1.png)<!-- -->
