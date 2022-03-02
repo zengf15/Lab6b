@@ -1,33 +1,76 @@
 ---
 title: "Lab 06b - Simpson's paradox"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Fanyi Zeng"
+date: "03/01/22"
 output: github_document
 ---
 
 ### Load packages and data
 
-```{r load-packages, message = FALSE}
+```{r load-packages-data, message = FALSE}
 library(tidyverse) 
 library(mosaicData) 
+data(Whickham)
+?Whickham
 ```
 
-### Exercise 1
+A study conducted of Whickham, England recorded participants’ age, smoking status at baseline, and then 20 years later recorded their health outcome.
+- observational data
+- three variables: outcome (alive or dead), smoker (yes or no), age
+- smokers might die at a younger age than nonsmokers
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r data}
+head(Whickham)
+Whickham %>%
+  count(smoker, outcome) %>%
+  group_by(smoker) %>%
+  mutate(prop_outcome = n/sum(n))
+```
 
-### Exercise 2
+Let's examine the relationship between smoker and age of death. The first plot does not tell us much. But, we can see from the second plot that, among people who are dead, most smokers died at age of 60 yr whereas most nonsmokers died at age of 70 yr.
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r plot}
+Whickham %>%
+  ggplot(aes(y = smoker, fill = outcome)) +
+  geom_bar(position = "fill") +
+  labs(title = "Status of smokers vs nonsmokers")
+Whickham %>%
+  filter(outcome == "Dead") %>%
+  ggplot(aes(x = smoker, y = age)) +
+  geom_violin() +
+  labs(title = "Age of death for nonsmokers vs. smokers")
+```
 
-### Exercise 3
+Now let's categorize people into different age groups and visualize the data again.
 
-...
+```{r new-age}
+Whickham <- Whickham %>%
+  mutate(age_cat = case_when(
+    age <= 44 ~ "18-44",
+    age > 44 & age <= 64 ~ "45-64",
+    age > 64 ~ "65+"))
+```
 
-Add exercise headings as needed.
+We can see that, among people who are dead, % smokers exceeded 50% in the first two age groups, but % smokers was much lower than % nonsmokers in the last age group. This tells us that, again, smokers died at an early age than nonsmokers.
+
+```{r viz}
+Whickham %>%
+  count(age_cat, smoker, outcome) %>%
+  group_by(age_cat) %>%
+  mutate(prop_outcome = n/sum(n))
+Whickham %>%
+  ggplot(aes(y = outcome, fill = smoker)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~age_cat) +
+  labs(title = "Status of smokers vs. nonsmokers", subtitle = "By age groups")
+```
+
+We can see this pattern more clearly by filtering in people who are dead.
+
+```{r bar}
+Whickham %>%
+  filter(outcome == "Dead") %>%
+  ggplot(aes(x = age_cat, fill = smoker)) +
+  geom_bar(position = "fill") +
+  labs(title = "Age of death of smokers vs. nonsmokers")
+```
